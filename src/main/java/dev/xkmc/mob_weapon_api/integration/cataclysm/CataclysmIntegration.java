@@ -73,6 +73,13 @@ public class CataclysmIntegration {
 				e -> WeaponStatus.OFFENSIVE.of(e.is(ModItems.CORAL_SPEAR.get())),
 				(golem, stack) -> new CoralSpearBehavior(), 10
 		);
+		try {
+			WeaponRegistry.HOLD.register(ModItems.BRONTES.getId(),
+					e -> WeaponStatus.OFFENSIVE.of(e.is(ModItems.BRONTES.get())),
+					(golem, stack) -> new BrontesBehavior(), 10
+			);
+		} catch (NoSuchFieldError e) {
+		}
 	}
 
 }
