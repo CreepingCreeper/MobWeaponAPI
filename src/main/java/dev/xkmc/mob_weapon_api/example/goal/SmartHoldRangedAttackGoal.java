@@ -42,6 +42,7 @@ public class SmartHoldRangedAttackGoal<E extends Mob> extends SmartRangedAttackG
 	@Override
 	public void stop() {
 		attackTime = -1;
+		mob.stopUsingItem();
 	}
 
 	@Override

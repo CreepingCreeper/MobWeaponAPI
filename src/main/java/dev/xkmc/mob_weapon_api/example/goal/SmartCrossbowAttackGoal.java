@@ -45,6 +45,7 @@ public class SmartCrossbowAttackGoal<E extends Mob> extends SmartRangedAttackGoa
 		super.stop();
 		setChargingCrossbow(false);
 		attackDelay = 0;
+		mob.stopUsingItem();
 	}
 
 	public void tick() {

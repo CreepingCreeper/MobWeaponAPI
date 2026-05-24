@@ -38,6 +38,7 @@ public class SmartBowAttackGoal<E extends Mob> extends SmartRangedAttackGoal<E> 
 	@Override
 	public void stop() {
 		attackTime = -1;
+		mob.stopUsingItem();
 	}
 
 	public void tick() {
