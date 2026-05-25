@@ -78,7 +78,7 @@ public class CataclysmIntegration {
 					e -> WeaponStatus.OFFENSIVE.of(e.is(ModItems.BRONTES.get())),
 					(golem, stack) -> new BrontesBehavior(), 10
 			);
-		} catch (NoSuchFieldError e) {
+		} catch (Throwable e) {
 		}
 	}
 
