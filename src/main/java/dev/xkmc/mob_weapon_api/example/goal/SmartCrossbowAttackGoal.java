@@ -4,6 +4,7 @@ import dev.xkmc.mob_weapon_api.api.ai.IWeaponHolder;
 import dev.xkmc.mob_weapon_api.api.goals.IMeleeGoal;
 import dev.xkmc.mob_weapon_api.registry.WeaponRegistry;
 import dev.xkmc.mob_weapon_api.registry.WeaponStatus;
+import dev.xkmc.mob_weapon_api.util.WeaponUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -35,6 +36,11 @@ public class SmartCrossbowAttackGoal<E extends Mob> extends SmartRangedAttackGoa
 	@Override
 	public Optional<WeaponStatus> getWeaponStatus(ItemStack stack) {
 		return WeaponRegistry.CROSSBOW.getProperties(stack);
+	}
+
+	@Override
+	public boolean shouldUseForMelee(ItemStack other) {
+		return !WeaponUtil.isBetterWeapon(mob, other, mob.getMainHandItem());
 	}
 
 	public void setChargingCrossbow(boolean bool) {
