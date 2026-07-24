@@ -61,7 +61,7 @@ public abstract class SmartRangedAttackGoal<E extends Mob> extends Goal implemen
 		super.stop();
 		mob.setAggressive(false);
 		holder.setInRangeAttack(false);
-		seeTime = 0;
+		seeTime = 5;
 		meleeTime = 0;
 		mob.stopUsingItem();
 	}
@@ -122,7 +122,7 @@ public abstract class SmartRangedAttackGoal<E extends Mob> extends Goal implemen
 			--seeTime;
 		}
 		double sqr = attackRadiusSqr();
-		if (dist <= sqr && seeTime >= 20) {
+		if (dist <= sqr && seeTime >= 5) {
 			mob.getNavigation().stop();
 			++strafingTime;
 		} else {
