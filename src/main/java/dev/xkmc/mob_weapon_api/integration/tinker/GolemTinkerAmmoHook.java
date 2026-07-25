@@ -75,7 +75,7 @@ public class GolemTinkerAmmoHook {
                 while(true) {
                     if (var20.hasNext()) {
                         ModifierEntry entry = (ModifierEntry)var20.next();
-                        BowAmmoModifierHook hook = (BowAmmoModifierHook)entry.getHook(ModifierHooks.BOW_AMMO);
+                        BowAmmoModifierHook hook = entry.getHook(ModifierHooks.BOW_AMMO);
                         ItemStack ammo = hook.findAmmo(tool, entry, living, standardAmmo, predicate);
                         if (ammo.isEmpty()) {
                             continue;
