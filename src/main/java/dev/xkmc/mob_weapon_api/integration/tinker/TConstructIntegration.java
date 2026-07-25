@@ -42,7 +42,7 @@ public class TConstructIntegration {
         );
 
 	}
-
+    /**If a modifier has bug with throwing by livings, add this tag to prevent*/
     public static final TagKey<Modifier> THROWING_BLACKLIST = ModifierManager.getTag(MobWeaponAPI.loc("throwing_blacklist"));
     private static final ModifierDeferredRegister MODIFIERS = ModifierDeferredRegister.create(MobWeaponAPI.MODID);
     public static final StaticModifier<ThrowingSyanModifier> throwingSyan = MODIFIERS.register("throwing_syan", ThrowingSyanModifier::new);

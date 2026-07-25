@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import static slimeknights.tconstruct.library.modifiers.hook.ranged.BowAmmoModifierHook.SKIP_INVENTORY_AMMO;
 
 public class GolemTinkerAmmoHook {
-
+    //form BowAmmoModifierHook.findMatchingAmmo
     private static ItemStack findMatchingAmmo(ItemStack bow, LivingEntity living, Predicate<ItemStack> predicate) {
         for(InteractionHand hand : InteractionHand.values()) {
             ItemStack stack = living.getItemInHand(hand);
@@ -32,6 +32,7 @@ public class GolemTinkerAmmoHook {
         return ItemStack.EMPTY;
     }
 
+    //form BowAmmoModifierHook.consumeAmmo
     static ItemStack consumeAmmo(IToolStackView tool, ItemStack bow, LivingEntity living, boolean noConfuse, @Nullable Predicate<ItemStack> predicate) {
         Level level = living.level();
         boolean skipInventoryAmmo = tool.getVolatileData().getBoolean(SKIP_INVENTORY_AMMO);
