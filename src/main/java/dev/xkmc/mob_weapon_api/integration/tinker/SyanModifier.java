@@ -1,6 +1,5 @@
 package dev.xkmc.mob_weapon_api.integration.tinker;
 
-import dev.xkmc.mob_weapon_api.init.MobWeaponAPI;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -37,10 +36,8 @@ public abstract class SyanModifier extends Modifier implements MeleeHitModifierH
     public void afterMeleeHit(IToolStackView tool, ModifierEntry modifier, ToolAttackContext context, float damageDealt) {
         ToolDataNBT data = ((ToolStack)tool).getPersistentData();
         ToolStack originTool = getOriginTool(context.getAttacker());
-        MobWeaponAPI.LOGGER.info(((ToolStack) tool).createStack() + "新工具");
         if (originTool != null) {
             originTool.getPersistentData().copyFrom(data.getCopy());
-            MobWeaponAPI.LOGGER.info(originTool.createStack() + "原工具");
         }
     }
 
