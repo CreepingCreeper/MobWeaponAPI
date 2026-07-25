@@ -10,7 +10,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import slimeknights.tconstruct.common.TinkerTags;
 import slimeknights.tconstruct.library.modifiers.Modifier;
@@ -62,12 +61,10 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
         ThrownTool thrown = new ThrownTool(level, thrower, tool.createStack(), 1.0F, velocity, ConditionalStatModifierHook.getModifiedStat(tool, thrower, ToolStats.WATER_INERTIA));
         ShootUtils.shootAimHelper(target, thrown, velocity * 2.0F, 0.05F);
 
-        //thrown.shootFromRotation(thrower, thrower.getXRot(), thrower.getYRot(), 0.0F, velocity * 2.0F, ModifierUtil.getInaccuracy(tool, thrower));
-
         thrown.onRelease(thrower, PersistentDataCapability.getOrWarn(thrown));
         level.addFreshEntity(thrown);
         level.playSound(null, thrown, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
-        thrower.addEffect(new MobEffectInstance(MobEffects.GLOWING,100));
+
         return 5;
     }
 
@@ -77,8 +74,4 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
         GeneralInteractionModifierHook.startUsing(tool, ModifierIds.throwing, user, hand);
     }
 
-    @Override
-    public boolean isValid(ProjectileWeaponUser user, ItemStack stack) {
-        return !user.user().hasEffect(MobEffects.GLOWING);
-    }
 }
