@@ -6,6 +6,8 @@ import dev.xkmc.mob_weapon_api.util.ShootUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -68,7 +70,7 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
         thrown.onRelease(thrower, PersistentDataCapability.getOrWarn(thrown));
         level.addFreshEntity(thrown);
         level.playSound(null, thrown, SoundEvents.TRIDENT_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
-
+        thrower.addEffect(new MobEffectInstance(MobEffects.GLOWING,100));
         return 5;
     }
 
@@ -76,5 +78,10 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
     public void startHolding(LivingEntity user, ItemStack stack, InteractionHand hand){
         ToolStack tool = ToolStack.from(stack);
         GeneralInteractionModifierHook.startUsing(tool, ModifierIds.throwing, user, hand);
+    }
+
+    @Override
+    public boolean isValid(ProjectileWeaponUser user, ItemStack stack) {
+        return !user.user().hasEffect(MobEffects.GLOWING);
     }
 }
