@@ -127,7 +127,7 @@ public class TinkerBowBehavior implements IBowBehavior {
             ModDataNBT arrowData = PersistentDataCapability.getOrWarn(arrow);
 
             for (ModifierEntry entry : modifiers.getModifiers()) {
-                entry.getHook(ModifierHooks.PROJECTILE_LAUNCH).onProjectileLaunch(tool, entry, user, arrow, arrow, arrowData, i == primaryIndex);
+                entry.getHook(ModifierHooks.PROJECTILE_LAUNCH).onProjectileLaunch(tool, entry, user, ammo, arrow, arrow, arrowData, i == primaryIndex);
             }
             level.addFreshEntity(arrow);
             level.playSound(null, user.getX(), user.getY(), user.getZ(), sound, SoundSource.PLAYERS, 1.0F, 1.0F / (level.getRandom().nextFloat() * 0.4F + 1.2F) + 0.5F + angle / 10.0F);
