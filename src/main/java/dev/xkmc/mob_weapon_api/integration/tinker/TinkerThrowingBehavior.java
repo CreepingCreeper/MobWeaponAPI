@@ -18,6 +18,7 @@ import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.hook.build.ConditionalStatModifierHook;
 import slimeknights.tconstruct.library.modifiers.hook.interaction.GeneralInteractionModifierHook;
 import slimeknights.tconstruct.library.tools.capability.PersistentDataCapability;
+import slimeknights.tconstruct.library.tools.helper.ToolDamageUtil;
 import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 import slimeknights.tconstruct.library.tools.stat.ToolStats;
 import slimeknights.tconstruct.tools.data.ModifierIds;
@@ -44,21 +45,17 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
     @Override
     public int trigger(ProjectileWeaponUser user, ItemStack stack, LivingEntity target, int time) {
         user.user().releaseUsingItem();
-        LivingEntity thrower =  user.user();
+        LivingEntity thrower = user.user();
         Level level = thrower.level();
         ToolStack tool = ToolStack.from(stack);
-        int loyalty = tool.getModifierLevel(ModifierIds.returning);
-        if (loyalty > 0) {
-            tool = tool.copy();
-            var map = stack.getAllEnchantments();
-            for (ModifierEntry modifierEntry : tool.getModifiers().getModifiers()){
-                Modifier modifier = modifierEntry.getModifier();
-                if (modifier.is(TConstructIntegration.THROWING_BLACKLIST)) {
-                    tool.removeModifier(modifier.getId(), 99);
-                }
+        tool = tool.copy();
+        ToolDamageUtil.damageAnimated(tool, 1, thrower, thrower.getUsedItemHand());
+
+        for (ModifierEntry modifierEntry : tool.getModifiers().getModifiers()){
+            Modifier modifier = modifierEntry.getModifier();
+            if (modifier.is(TConstructIntegration.THROWING_BLACKLIST)) {
+                tool.removeModifier(modifier.getId(), 99);
             }
-            tool.removeModifier(ModifierIds.returning, loyalty);
-            EnchantmentHelper.setEnchantments(map, stack);
         }
 
         float velocity = ConditionalStatModifierHook.getModifiedStat(tool, thrower, ToolStats.VELOCITY);
