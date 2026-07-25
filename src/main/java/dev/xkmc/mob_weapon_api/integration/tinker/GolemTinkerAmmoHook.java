@@ -2,8 +2,6 @@ package dev.xkmc.mob_weapon_api.integration.tinker;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
@@ -11,7 +9,9 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.ModifierHooks;
 import slimeknights.tconstruct.library.modifiers.hook.ranged.BowAmmoModifierHook;
+import slimeknights.tconstruct.library.tools.helper.ToolDamageUtil;
 import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
+import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -29,21 +29,10 @@ public class GolemTinkerAmmoHook {
             }
         }
 
-        if (living instanceof Player player) {
-            Inventory inventory = player.getInventory();
-
-            for(int i = 0; i < inventory.getContainerSize(); ++i) {
-                ItemStack stack = inventory.getItem(i);
-                if (!stack.isEmpty() && predicate.test(stack)) {
-                    return ForgeHooks.getProjectile(player, bow, stack);
-                }
-            }
-        }
-
         return ItemStack.EMPTY;
     }
 
-    static ItemStack consumeAmmo(IToolStackView tool, ItemStack bow, LivingEntity living, boolean confused, @Nullable Predicate<ItemStack> predicate) {
+    static ItemStack consumeAmmo(IToolStackView tool, ItemStack bow, LivingEntity living, boolean noConfuse, @Nullable Predicate<ItemStack> predicate) {
         Level level = living.level();
         boolean skipInventoryAmmo = tool.getVolatileData().getBoolean(SKIP_INVENTORY_AMMO);
         ItemStack standardAmmo;
@@ -61,7 +50,8 @@ public class GolemTinkerAmmoHook {
                 BowAmmoModifierHook hook = entry.getHook(ModifierHooks.BOW_AMMO);
                 ItemStack ammo = hook.findAmmo(tool, entry, living, standardAmmo, predicate);
                 if (!ammo.isEmpty()) {
-                    if (confused) {
+                    if (noConfuse) {
+                        ToolDamageUtil.damageAnimated(ToolStack.from(ammo), 1, living);
                         return ItemHandlerHelper.copyStackWithSize(ammo, 1);
                     }
 
@@ -77,7 +67,8 @@ public class GolemTinkerAmmoHook {
                 return ItemStack.EMPTY;
             }
 
-            if (confused) {
+            if (noConfuse) {
+                ToolDamageUtil.damageAnimated(ToolStack.from(standardAmmo), 1, living);
                 return ItemHandlerHelper.copyStackWithSize(standardAmmo, 1);
             }
 

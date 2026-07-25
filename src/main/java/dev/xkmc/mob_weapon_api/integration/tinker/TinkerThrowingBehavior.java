@@ -6,8 +6,6 @@ import dev.xkmc.mob_weapon_api.util.ShootUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -47,14 +45,15 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
         LivingEntity thrower = user.user();
         Level level = thrower.level();
         ToolStack tool = ToolStack.from(stack);
+        ToolDamageUtil.damageAnimated(tool, 1, thrower);
         tool = tool.copy();
-        ToolDamageUtil.damageAnimated(tool, 1, thrower, thrower.getUsedItemHand());
 
         for (ModifierEntry modifierEntry : tool.getModifiers().getModifiers()){
             Modifier modifier = modifierEntry.getModifier();
             if (modifier.is(TConstructIntegration.THROWING_BLACKLIST)) {
-                tool.removeModifier(modifier.getId(), 99);
+                tool.removeModifier(modifier.getId(), 999);
             }
+            tool.addModifier(TConstructIntegration.throwingSyan.getId(), 1);
         }
 
         float velocity = ConditionalStatModifierHook.getModifiedStat(tool, thrower, ToolStats.VELOCITY);

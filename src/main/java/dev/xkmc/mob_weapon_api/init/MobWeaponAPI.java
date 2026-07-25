@@ -35,8 +35,9 @@ public class MobWeaponAPI {
 	public static final Registrate REGISTRATE = Registrate.create(MODID);
 
 	public MobWeaponAPI() {
-		if (ModList.get().isLoaded(Cataclysm.MODID)) CataclysmIntegration.register();
-		if (ModList.get().isLoaded(TwilightForestMod.ID)) TFIntegration.register();
+        if (ModList.get().isLoaded(TConstruct.MOD_ID)) TConstructIntegration.register();
+        if (ModList.get().isLoaded(Cataclysm.MODID)) CataclysmIntegration.register();
+        if (ModList.get().isLoaded(TwilightForestMod.ID)) TFIntegration.register();
 	}
 
 	@SubscribeEvent

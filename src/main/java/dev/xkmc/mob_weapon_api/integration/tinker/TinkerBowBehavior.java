@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import slimeknights.tconstruct.common.Sounds;
 import slimeknights.tconstruct.common.TinkerTags;
+import slimeknights.tconstruct.library.modifiers.Modifier;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.ModifierHooks;
 import slimeknights.tconstruct.library.modifiers.hook.build.ConditionalStatModifierHook;
@@ -26,7 +27,6 @@ import slimeknights.tconstruct.library.tools.helper.ModifierUtil;
 import slimeknights.tconstruct.library.tools.helper.ToolDamageUtil;
 import slimeknights.tconstruct.library.tools.item.ranged.ModifiableBowItem;
 import slimeknights.tconstruct.library.tools.item.ranged.ModifiableLauncherItem;
-import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
 import slimeknights.tconstruct.library.tools.nbt.ModDataNBT;
 import slimeknights.tconstruct.library.tools.nbt.ModifierNBT;
 import slimeknights.tconstruct.library.tools.nbt.ToolStack;
@@ -56,6 +56,7 @@ public class TinkerBowBehavior implements IBowBehavior {
         return !BowAmmoModifierHook.getAmmo(tool, stack, user.user(), ModifiableBowItem.isBallista(tool) ? bow.getSupportedBallistaAmmo() : bow.getSupportedHeldProjectiles()).isEmpty();
     }
 
+    @Override
 	public int shootArrow(BowUseContext user, float dist, ItemStack stack, InteractionHand hand) {
 		if (!(stack.getItem() instanceof ModifiableBowItem bow)) return 20;
 		shoot(bow, stack, user);
@@ -86,9 +87,10 @@ public class TinkerBowBehavior implements IBowBehavior {
         boolean thrownTool = ammo.is(TinkerTags.Items.BALLISTA_AMMO);
         ArrowItem arrowItem = null;
         float waterInertia = 0.6F;
+        ToolStack thrown = null;
         if (thrownTool){
             sound = SoundEvents.TRIDENT_THROW;
-            IToolStackView thrown = ToolStack.from(ammo);
+            thrown = ToolStack.from(ammo);
             float thrownVelocity = ConditionalStatModifierHook.getModifiedStat(thrown, user, ToolStats.VELOCITY);
             velocity *= thrownVelocity * ConditionalStatModifierHook.getModifiedStat(thrown, user, ToolStats.DRAW_SPEED) / 1.5F;
             if (ammo.is(TinkerTags.Items.MELEE_WEAPON)) {
@@ -102,9 +104,16 @@ public class TinkerBowBehavior implements IBowBehavior {
         for (int i = 0; i < ammo.getCount(); ++i) {
             AbstractArrow arrow;
             if (thrownTool) {
-                ThrownTool thrown = new ThrownTool(level, user, ammo, 1.0F, velocity, waterInertia);
-                thrown.setOriginalSlot(-1);
-                arrow = thrown;
+                for (ModifierEntry modifierEntry : thrown.getModifiers().getModifiers()){
+                    Modifier modifier = modifierEntry.getModifier();
+                    if (modifier.is(TConstructIntegration.THROWING_BLACKLIST)) {
+                        thrown.removeModifier(modifier.getId(), 999);
+                    }
+                    thrown.addModifier(TConstructIntegration.ballistaSyan.getId(), 1);
+                }
+                ThrownTool thrownPrj = new ThrownTool(level, user, thrown.createStack(), 1.0F, velocity, waterInertia);
+                thrownPrj.setOriginalSlot(-1);
+                arrow = thrownPrj;
             } else {
                 arrow = arrowItem.createArrow(level, ammo, user);
             }

@@ -1,6 +1,5 @@
 {
   "values": [
-    "tconstruct:returning",
-    "tconstruct:spilling"
+    "tconstruct:returning"
   ]
 }
