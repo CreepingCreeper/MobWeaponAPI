@@ -1,6 +1,9 @@
 package dev.xkmc.mob_weapon_api.integration.tinker;
 
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
@@ -17,6 +20,28 @@ import java.util.function.Predicate;
 import static slimeknights.tconstruct.library.modifiers.hook.ranged.BowAmmoModifierHook.SKIP_INVENTORY_AMMO;
 
 public class GolemTinkerAmmoHook {
+
+    private static ItemStack findMatchingAmmo(ItemStack bow, LivingEntity living, Predicate<ItemStack> predicate) {
+        for(InteractionHand hand : InteractionHand.values()) {
+            ItemStack stack = living.getItemInHand(hand);
+            if (stack != bow && predicate.test(stack)) {
+                return ForgeHooks.getProjectile(living, bow, stack);
+            }
+        }
+
+        if (living instanceof Player player) {
+            Inventory inventory = player.getInventory();
+
+            for(int i = 0; i < inventory.getContainerSize(); ++i) {
+                ItemStack stack = inventory.getItem(i);
+                if (!stack.isEmpty() && predicate.test(stack)) {
+                    return ForgeHooks.getProjectile(player, bow, stack);
+                }
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
 
     static ItemStack consumeAmmo(IToolStackView tool, ItemStack bow, LivingEntity living, boolean confused, @Nullable Predicate<ItemStack> predicate) {
         Level level = living.level();
