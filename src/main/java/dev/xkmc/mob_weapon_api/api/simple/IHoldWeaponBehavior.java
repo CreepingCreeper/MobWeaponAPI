@@ -1,6 +1,7 @@
 package dev.xkmc.mob_weapon_api.api.simple;
 
 import dev.xkmc.mob_weapon_api.api.projectile.ProjectileWeaponUser;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
@@ -24,4 +25,7 @@ public interface IHoldWeaponBehavior extends IWeaponWithCD {
 		return true;
 	}
 
+    default void startHolding(LivingEntity user, ItemStack stack, InteractionHand hand){
+        user.startUsingItem(hand);
+    }
 }

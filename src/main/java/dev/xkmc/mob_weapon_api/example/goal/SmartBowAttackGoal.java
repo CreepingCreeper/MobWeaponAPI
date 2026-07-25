@@ -27,9 +27,8 @@ public class SmartBowAttackGoal<E extends Mob> extends SmartRangedAttackGoal<E> 
 	@Override
 	public boolean mayActivate(ItemStack stack) {
 		var weapon = WeaponRegistry.BOW.get(mob, stack);
-		if (weapon.isEmpty()) return false;
-		return weapon.get().hasProjectile(holder.toUser(), stack);
-	}
+        return weapon.map(iBowBehavior -> iBowBehavior.hasProjectile(holder.toUser(), stack)).orElse(false);
+    }
 
 	@Override
 	public Optional<WeaponStatus> getWeaponStatus(ItemStack stack) {

@@ -84,6 +84,7 @@ public class SmartHoldRangedAttackGoal<E extends Mob> extends SmartRangedAttackG
 			}
 		} else if (meleeFinished() && --attackTime <= 0 && seeTime >= -60 && withInRange) {
 			mob.startUsingItem(holder.getWeaponHand());
+            weapon.get().startHolding(user.user(), stack, holder.getWeaponHand());
 		}
 	}
 

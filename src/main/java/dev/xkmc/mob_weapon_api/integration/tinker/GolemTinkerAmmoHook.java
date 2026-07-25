@@ -1,9 +1,6 @@
 package dev.xkmc.mob_weapon_api.integration.tinker;
 
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.ForgeHooks;
@@ -12,135 +9,105 @@ import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.ModifierHooks;
 import slimeknights.tconstruct.library.modifiers.hook.ranged.BowAmmoModifierHook;
 import slimeknights.tconstruct.library.tools.nbt.IToolStackView;
-import slimeknights.tconstruct.tools.TinkerModifiers;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
+import static slimeknights.tconstruct.library.modifiers.hook.ranged.BowAmmoModifierHook.SKIP_INVENTORY_AMMO;
+
 public class GolemTinkerAmmoHook {
 
-	static boolean hasAmmo(IToolStackView tool, ItemStack bowStack, LivingEntity e, Predicate<ItemStack> predicate) {
-		if (e.getProjectile(bowStack).isEmpty()) {
-			Iterator<ModifierEntry> var4 = tool.getModifierList().iterator();
+    static ItemStack consumeAmmo(IToolStackView tool, ItemStack bow, LivingEntity living, boolean confused, @Nullable Predicate<ItemStack> predicate) {
+        Level level = living.level();
+        boolean skipInventoryAmmo = tool.getVolatileData().getBoolean(SKIP_INVENTORY_AMMO);
+        ItemStack standardAmmo;
+        if (skipInventoryAmmo) {
+            standardAmmo = ItemStack.EMPTY;
+        } else if (predicate == null) {
+            standardAmmo = ForgeHooks.getProjectile(living, bow, ItemStack.EMPTY);
+        } else {
+            standardAmmo = living.getProjectile(bow);
+        }
 
-			ModifierEntry entry;
-			do {
-				if (!var4.hasNext()) {
-					return false;
-				}
+        ItemStack resultStack = ItemStack.EMPTY;
+        if (predicate != null) {
+            for(ModifierEntry entry : tool.getModifierList()) {
+                BowAmmoModifierHook hook = entry.getHook(ModifierHooks.BOW_AMMO);
+                ItemStack ammo = hook.findAmmo(tool, entry, living, standardAmmo, predicate);
+                if (!ammo.isEmpty()) {
+                    if (confused) {
+                        return ItemHandlerHelper.copyStackWithSize(ammo, 1);
+                    }
 
-				entry = var4.next();
-			} while (entry.getHook(ModifierHooks.BOW_AMMO).findAmmo(tool, entry, e, ItemStack.EMPTY, predicate).isEmpty());
+                    resultStack = ItemHandlerHelper.copyStackWithSize(ammo, Math.min(1, ammo.getCount()));
+                    hook.shrinkAmmo(tool, entry, living, ammo, resultStack.getCount());
+                    break;
+                }
+            }
+        }
 
-		}
-		return true;
-	}
+        if (resultStack.isEmpty()) {
+            if (standardAmmo.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
 
-	private static ItemStack findMatchingAmmo(ItemStack bow, LivingEntity living, Predicate<ItemStack> predicate) {
-		InteractionHand[] var3 = InteractionHand.values();
-		int var4 = var3.length;
+            if (confused) {
+                return ItemHandlerHelper.copyStackWithSize(standardAmmo, 1);
+            }
 
-		int i;
-		for (i = 0; i < var4; ++i) {
-			InteractionHand hand = var3[i];
-			ItemStack stack = living.getItemInHand(hand);
-			if (stack != bow && predicate.test(stack)) {
-				return ForgeHooks.getProjectile(living, bow, stack);
-			}
-		}
-		if (living instanceof Player player) {
-			Inventory inventory = player.getInventory();
+            resultStack = standardAmmo.split(1);
 
-			for (i = 0; i < inventory.getContainerSize(); ++i) {
-				ItemStack stack = inventory.getItem(i);
-				if (!stack.isEmpty() && predicate.test(stack)) {
-					return ForgeHooks.getProjectile(player, bow, stack);
-				}
-			}
-		}
-		return ForgeHooks.getProjectile(living, bow, ItemStack.EMPTY);
-	}
+        }
 
-	static ItemStack findAmmo(IToolStackView tool, ItemStack bow, LivingEntity e, Predicate<ItemStack> predicate) {
-		int projectilesDesired = 1 + 2 * tool.getModifierLevel(TinkerModifiers.multishot.getId());
-		Level level = e.level();
-		boolean creative = e instanceof Player pl && pl.getAbilities().instabuild || level.isClientSide;
-		ItemStack standardAmmo = e.getProjectile(bow);
-		ItemStack resultStack = ItemStack.EMPTY;
+        if (resultStack.getCount() < 1 && !level.isClientSide) {
+            ItemStack finalResultStack = resultStack;
+            predicate = (stack) -> ItemStack.isSameItemSameTags(stack, finalResultStack);
 
-		for (ModifierEntry entry : tool.getModifierList()) {
-			BowAmmoModifierHook hook = entry.getHook(ModifierHooks.BOW_AMMO);
-			ItemStack ammo = hook.findAmmo(tool, entry, e, standardAmmo, predicate);
-			if (!ammo.isEmpty()) {
-				if (creative) {
-					return ItemHandlerHelper.copyStackWithSize(ammo, projectilesDesired);
-				}
+            do {
+                if (!skipInventoryAmmo && standardAmmo.isEmpty()) {
+                    standardAmmo = findMatchingAmmo(bow, living, predicate);
+                }
 
-				resultStack = ItemHandlerHelper.copyStackWithSize(ammo, Math.min(projectilesDesired, ammo.getCount()));
-				hook.shrinkAmmo(tool, entry, e, ammo, resultStack.getCount());
-				break;
-			}
-		}
+                int needed = 1 - resultStack.getCount();
+                Iterator var20 = tool.getModifierList().iterator();
 
-		if (resultStack.isEmpty()) {
-			if (standardAmmo.isEmpty()) {
-				return ItemStack.EMPTY;
-			}
+                while(true) {
+                    if (var20.hasNext()) {
+                        ModifierEntry entry = (ModifierEntry)var20.next();
+                        BowAmmoModifierHook hook = (BowAmmoModifierHook)entry.getHook(ModifierHooks.BOW_AMMO);
+                        ItemStack ammo = hook.findAmmo(tool, entry, living, standardAmmo, predicate);
+                        if (ammo.isEmpty()) {
+                            continue;
+                        }
 
-			if (creative) {
-				return ItemHandlerHelper.copyStackWithSize(standardAmmo, projectilesDesired);
-			}
+                        int gained = Math.min(needed, ammo.getCount());
+                        hook.shrinkAmmo(tool, entry, living, ammo, gained);
+                        resultStack.grow(gained);
+                        break;
+                    }
 
-			resultStack = standardAmmo.split(projectilesDesired);
-		}
+                    if (standardAmmo.isEmpty()) {
+                        return resultStack;
+                    }
 
-		if (resultStack.getCount() < projectilesDesired && !level.isClientSide) {
-			ItemStack match = resultStack;
-			predicate = (stack) -> {
-				return ItemStack.isSameItemSameTags(stack, match);
-			};
+                    if (needed <= standardAmmo.getCount()) {
+                        standardAmmo.shrink(needed);
+                        resultStack.grow(needed);
+                        return resultStack;
+                    }
 
-			do {
-				if (standardAmmo.isEmpty()) {
-					standardAmmo = findMatchingAmmo(bow, e, predicate);
-				}
+                    resultStack.grow(standardAmmo.getCount());
 
-				Iterator var15 = tool.getModifierList().iterator();
+                    standardAmmo = ItemStack.EMPTY;
+                    break;
+                }
+            } while(resultStack.getCount() < 1);
 
-				while (true) {
-					if (var15.hasNext()) {
-						ModifierEntry entry = (ModifierEntry) var15.next();
-						BowAmmoModifierHook hook = entry.getHook(ModifierHooks.BOW_AMMO);
-						ItemStack ammo = hook.findAmmo(tool, entry, e, standardAmmo, predicate);
-						if (ammo.isEmpty()) {
-							continue;
-						}
-
-						hook.shrinkAmmo(tool, entry, e, ammo, Math.min(projectilesDesired - resultStack.getCount(), ammo.getCount()));
-						break;
-					}
-
-					if (standardAmmo.isEmpty()) {
-						return resultStack;
-					}
-
-					int needed = projectilesDesired - resultStack.getCount();
-					if (needed > standardAmmo.getCount()) {
-						standardAmmo.shrink(needed);
-						resultStack.grow(needed);
-						return resultStack;
-					}
-
-					resultStack.grow(standardAmmo.getCount());
-					standardAmmo.setCount(0);
-					break;
-				}
-			} while (resultStack.getCount() < projectilesDesired);
-
-			return resultStack;
-		} else {
-			return resultStack;
-		}
-	}
+            return resultStack;
+        } else {
+            return resultStack;
+        }
+    }
 
 }
