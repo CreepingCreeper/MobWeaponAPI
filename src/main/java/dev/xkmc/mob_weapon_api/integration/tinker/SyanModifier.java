@@ -7,7 +7,6 @@ import slimeknights.tconstruct.library.modifiers.Modifier;
 import slimeknights.tconstruct.library.modifiers.ModifierEntry;
 import slimeknights.tconstruct.library.modifiers.ModifierHooks;
 import slimeknights.tconstruct.library.modifiers.hook.combat.MeleeHitModifierHook;
-import slimeknights.tconstruct.library.modifiers.hook.combat.MonsterMeleeHitModifierHook;
 import slimeknights.tconstruct.library.modifiers.hook.mining.BlockBreakModifierHook;
 import slimeknights.tconstruct.library.module.ModuleHookMap;
 import slimeknights.tconstruct.library.tools.context.ToolAttackContext;
@@ -17,11 +16,11 @@ import slimeknights.tconstruct.library.tools.nbt.ToolDataNBT;
 import slimeknights.tconstruct.library.tools.nbt.ToolStack;
 
 
-public abstract class SyanModifier extends Modifier implements MeleeHitModifierHook, BlockBreakModifierHook, MonsterMeleeHitModifierHook.RedirectAfter {
+public abstract class SyanModifier extends Modifier implements MeleeHitModifierHook, BlockBreakModifierHook {
     @Override
     protected void registerHooks(ModuleHookMap.@NotNull Builder hookBuilder) {
         super.registerHooks(hookBuilder);
-        hookBuilder.addHook(this, ModifierHooks.MELEE_HIT, ModifierHooks.BLOCK_BREAK, ModifierHooks.MONSTER_MELEE_HIT);
+        hookBuilder.addHook(this, ModifierHooks.MELEE_HIT, ModifierHooks.BLOCK_BREAK);
     }
 
     @Override
