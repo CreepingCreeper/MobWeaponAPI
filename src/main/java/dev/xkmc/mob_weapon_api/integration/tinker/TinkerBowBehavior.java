@@ -116,6 +116,7 @@ public class TinkerBowBehavior implements IBowBehavior {
                 arrow = thrownPrj;
             } else {
                 arrow = arrowItem.createArrow(level, ammo, user);
+                arrow.pickup = AbstractArrow.Pickup.ALLOWED;
             }
             float angle = startAngle + (float) (10 * i);
             consumer.shoot(arrow, angle);

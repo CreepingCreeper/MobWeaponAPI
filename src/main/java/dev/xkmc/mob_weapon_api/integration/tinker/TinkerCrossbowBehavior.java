@@ -93,6 +93,7 @@ public class TinkerCrossbowBehavior implements ICrossbowBehavior {
 				arrow.setCritArrow(true);
 				arrow.setSoundEvent(SoundEvents.CROSSBOW_HIT);
 				arrow.setShotFromCrossbow(true);
+                arrow.pickup = AbstractArrow.Pickup.ALLOWED;
 				++damage;
 				angle = (float) (arrow.getBaseDamage() - 2.0 + tool.getStats().get(ToolStats.PROJECTILE_DAMAGE));
 				arrow.setBaseDamage(ConditionalStatModifierHook.getModifiedStat(tool, golem, ToolStats.PROJECTILE_DAMAGE, angle));
