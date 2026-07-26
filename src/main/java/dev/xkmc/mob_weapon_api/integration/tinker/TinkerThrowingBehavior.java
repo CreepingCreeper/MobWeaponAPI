@@ -53,9 +53,8 @@ public class TinkerThrowingBehavior implements IHoldWeaponBehavior {
             if (modifier.is(TConstructIntegration.THROWING_BLACKLIST)) {
                 tool.removeModifier(modifier.getId(), 999);
             }
-            tool.addModifier(TConstructIntegration.throwingSyan.getId(), 1);
         }
-
+        tool.addModifier(TConstructIntegration.throwingSyan.getId(), 1);
         float velocity = ConditionalStatModifierHook.getModifiedStat(tool, thrower, ToolStats.VELOCITY);
         ThrownTool thrown = new ThrownTool(level, thrower, tool.createStack(), 1.0F, velocity, ConditionalStatModifierHook.getModifiedStat(tool, thrower, ToolStats.WATER_INERTIA));
         ShootUtils.shootAimHelper(target, thrown, velocity * 2.0F, 0.05F);

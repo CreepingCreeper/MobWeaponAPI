@@ -109,8 +109,8 @@ public class TinkerBowBehavior implements IBowBehavior {
                     if (modifier.is(TConstructIntegration.THROWING_BLACKLIST)) {
                         thrown.removeModifier(modifier.getId(), 999);
                     }
-                    thrown.addModifier(TConstructIntegration.ballistaSyan.getId(), 1);
                 }
+                thrown.addModifier(TConstructIntegration.ballistaSyan.getId(), 1);
                 ThrownTool thrownPrj = new ThrownTool(level, user, thrown.createStack(), 1.0F, velocity, waterInertia);
                 thrownPrj.setOriginalSlot(-1);
                 arrow = thrownPrj;
@@ -158,8 +158,6 @@ public class TinkerBowBehavior implements IBowBehavior {
                 tool.getPersistentData().putInt(KEY_BALLISTA, flag);
             }
         }
-        if (!shooter.level().isClientSide) {
-            shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(), Sounds.LONGBOW_CHARGE.getSound(), SoundSource.PLAYERS, 0.75F, 1.0F);
-        }
+        shooter.level().playSound(null, shooter.getX(), shooter.getY(), shooter.getZ(), Sounds.LONGBOW_CHARGE.getSound(), SoundSource.PLAYERS, 0.75F, 1.0F);
     }
 }
